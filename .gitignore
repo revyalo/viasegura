@@ -1,0 +1,19 @@
+# Build artifacts
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+build.ninja
+*.o
+*.obj
+*.exe
+*.out
+
+# Generated output
+camaras.txt
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store

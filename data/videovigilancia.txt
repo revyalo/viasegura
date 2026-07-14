@@ -1,0 +1,133 @@
+ID Cartel;Ubicacion;Anyo;Zona;Latitud;Longitud;Direccion
+101;Gta Embajadores Miguel Servet;2009;LAVAPIES;40.42107;-3.72026;Gta Embajadores Miguel Servet
+102;Miguel Servet Meson de Paredes;2009;LAVAPIES;40.49176;-3.59356;Miguel Servet 
+103;Miguel Servet Amparo;2009;LAVAPIES;40.40037;-3.69277;Miguel Servet Amparo
+104;Valencia Sombrereria;2009;LAVAPIES;40.42341;-3.69086;Calle Valencia 15
+105;Argumosa Dr Fourquet;2009;LAVAPIES;40.42107;-3.69087;Calle de Argumosa 41
+106;Dr Piga Salitre;2009;LAVAPIES;40.42108;-3.69088;Calle del Salitre 38
+107;Valencia Tribulete;2009;LAVAPIES;40.42109;-3.69089;Plaza de Lavapies
+108;Amparo Sombrerete;2019;LAVAPIES;40.4211;-3.6909;Calle Sombrerete
+109;Meson de Paredes Sombrerete;2019;LAVAPIES;40.42107;-3.69085;Calle Meson Paredes 61
+110;Meson de Paredes Tribulete;2019;LAVAPIES;40.42107;-3.69086;Calle Meson Paredes 65
+111;Embajadores Provisiones;2019;LAVAPIES;40.49176;-3.69087;Calle Provisiones 22
+112;Embajadores Tribulete;2019;LAVAPIES;40.40037;-3.69088;Embajadores Tribulete
+113;Rodas Penya de Francia;2019;LAVAPIES;40.42341;-3.69089;Calle Penya de Francia 1
+114;Embajadores Rodas;2019;LAVAPIES;40.40036;-3.6909;Calle Rodas 1
+115;Embajadores Tva Cabestreros;2019;LAVAPIES;40.40037;-3.69085;Calle Cabestreros 23
+116;Cabestreros Tva Cabestreros;2019;LAVAPIES;40.421;-3.69086;Calle Cabestreros 14
+117;Meson de Paredes Cabestreros;2019;LAVAPIES;40.42101;-3.69087;Calle Cabestreros 1
+118;Meson de Paredes n 57;2019;LAVAPIES;40.42102;-3.69088;Calle Meson Paredes 57
+119;Pza Lavapies Sombrerete;2019;LAVAPIES;40.42103;-3.69089;Pza Lavapies 1
+120;del Ave Maria de la Fe;2019;LAVAPIES;40.42104;-3.6909;Calle de la Fe 1
+121;Torrecilla del Leal Zurita;2019;LAVAPIES;40.42105;-3.69091;Calle Torrecilla del Leal 29
+123;Sta Isabel Buenavista;2019;LAVAPIES;40.42106;-3.69092;Sta Isabel Buenavista
+124;Ave Maria Olmo;2019;LAVAPIES;40.42107;-3.69093;Calle Olmo 16
+125;Magdalena Ave Maria;2019;LAVAPIES;40.49166;-3.69094;Calle Magdalena 32
+126;Atocha Leon;2019;LAVAPIES;40.49167;-3.69095;Atocha Leon
+127;Magdalena n 21;2019;LAVAPIES;40.49168;-3.69096;Magdalena n 21
+128;Magdalena Relatores;2019;LAVAPIES;40.49169;-3.69087;Calle Relatores 22
+129;Pza Tirso de Molina Jesus y Maria;2019;LAVAPIES;40.4917;-3.69071;Calle Jesus y Maria 1
+130;Pza Tirso de Molina Colegiata;2019;LAVAPIES;40.49171;-3.69072;Calle de la Colegiata 1
+131;Pza Tirso de Molina Meson de Paredes;2019;LAVAPIES;40.49172;-3.69073;Calle Meson Paredes 1
+132;Duque de Alba Pza Cascorro;2019;LAVAPIES;40.49173;-3.69074;Calle Duque de Alba 20
+133;Pza Cebada Toledo;2019;LAVAPIES;40.49174;-3.69075;Pza Cebada Toledo
+134;Pza Cascorro n 6;2019;LAVAPIES;40.49175;-3.69076;Pza Cascorro n 6
+135;Embajadores Encomienda;2019;LAVAPIES;40.49176;-3.69077;Calle Encomienda 26
+136;Embajadores Abades;2019;LAVAPIES;40.40029;-3.69078;Calle de los Abades 15
+137;Embajadores n 26;2019;LAVAPIES;40.4003;-3.69079;Embajadores n 26
+138;Meson de Paredes Encomienda;2020;LAVAPIES;40.40031;-3.6908;Calle de la Encomienda 1
+139;Amparo Esgrima;2020;LAVAPIES;40.40032;-3.69081;Calle Amparo 1
+140;Meson de Paredes Abades;2020;LAVAPIES;40.40033;-3.69082;Calle Abades 1
+141;Jesus y Maria Tva Comadre;2020;LAVAPIES;40.40034;-3.69083;Comadre 1
+142;Jesus y Maria Lavapies;2020;LAVAPIES;40.40035;-3.69084;Jesus y Maria Lavapies
+143;Ministriles Ministriles Chica;2020;LAVAPIES;40.40036;-3.69085;Ministriles Ministriles Chica
+144;Olivar San Carlos;2020;LAVAPIES;40.40037;-3.69086;Olivar San Carlos
+145;Lavapies Calvario;2020;LAVAPIES;40.40061;-3.69087;Calle de Lavapies 29
+146;Ave Maria Pza Lavapies;2020;LAVAPIES;40.40062;-3.6908;Calle del Ave Maria 52
+147;Fe Salitre;2020;LAVAPIES;40.40063;-3.69081;Calle de la Fe 19
+148;Meson de Paredes Juanelo;2020;LAVAPIES;40.40036;-3.69082;Calle de Juanelo 5
+201;Gran Via Valverde;2020;BALLESTA-GRAN VIA;40.40037;-3.69083;Calle de Valverde 1
+202;Gran Via Barco;2022;BALLESTA-GRAN VIA;40.40038;-3.69084;Gran Via Barco
+203;Gran Via Concepcion Arenal;2022;BALLESTA-GRAN VIA;40.40039;-3.69085;C. de Concepcion Arenal 1
+204;Gran Via Miguel Moya;2022;BALLESTA-GRAN VIA;40.4004;-3.69086;Calle de Miguel Moya 1
+205;Pza Soledad T. Acosta San Roque;2022;BALLESTA-GRAN VIA;40.40041;-3.69087;
+206;Desenganyo Concepcion Arenal;2022;BALLESTA-GRAN VIA;40.40042;-3.69088;
+207;Desenganyo Gonzalo;2022;BALLESTA-GRAN VIA;40.40043;-3.69089;
+208;Desenganyo Valverde;2022;BALLESTA-GRAN VIA;40.40044;-3.6909;
+209;Valverde 14;2022;BALLESTA-GRAN VIA;40.40045;-3.69091;
+210;Valverde Puebla;2022;BALLESTA-GRAN VIA;40.40046;-3.69092;
+211;Corredera Baja S. Pablo Ballesta;2022;BALLESTA-GRAN VIA;40.42341;-3.69081;
+212;Corredera Baja S. Pablo Pez;2022;BALLESTA-GRAN VIA;40.42342;-3.69082;
+213;Corredera Baja S. Pablo Puebla;2022;BALLESTA-GRAN VIA;40.42343;-3.69083;
+214;Corredera Baja S. Pablo Loreto y Chicote;2022;BALLESTA-GRAN VIA;40.42344;-3.69084;
+215;Gran Via Fuencarral;2022;BALLESTA-GRAN VIA;40.42345;-3.69085;
+216;Fuencarral 29;2022;BALLESTA-GRAN VIA;40.42346;-3.69086;
+217;Gran Via 56;2022;BALLESTA-GRAN VIA;40.42347;-3.69087;
+218;Gran Via Isabel la Catolica;2022;BALLESTA-GRAN VIA;40.42348;-3.69088;
+219;Gran Via Reyes;2022;BALLESTA-GRAN VIA;40.42349;-3.69089;
+220;Pza de los Cubos;2022;BALLESTA-GRAN VIA;40.4235;-3.6909;
+221;Pza Espanya;2022;BALLESTA-GRAN VIA;40.42351;-3.69091;
+222;Pza Espanya Bailen;2022;BALLESTA-GRAN VIA;40.42352;-3.69092;
+301;Pta del Sol Espoz y Mina;2022;CENTRO SUR;40.42353;-3.69093;
+302;Pta del Sol Montera;2022;CENTRO SUR;40.42354;-3.69094;
+303;Pta del Sol Arenal;2022;CENTRO SUR;40.42355;-3.69095;
+304;Carmen Tetuan;2022;CENTRO SUR;40.42356;-3.69096;
+305;Preciados 16;2022;CENTRO SUR;40.42357;-3.69097;
+306;Montera Aduana;2022;CENTRO SUR;40.42358;-3.69098;
+307;Montera Jardines;2015;CENTRO SUR;40.42359;-3.69088;
+308;Montera Caballero de Gracia;2015;CENTRO SUR;40.4236;-3.69089;
+309;Montera Gran Via;2015;CENTRO SUR;40.42361;-3.6909;
+310;Gran Via Tres Cruces;2015;CENTRO SUR;40.42362;-3.69091;
+311;Gran Via Salud;2015;CENTRO SUR;40.42363;-3.69092;
+312;Pza Callao Preciados;2015;CENTRO SUR;40.42364;-3.69093;
+313;Pza San Martin;2015;CENTRO SUR;40.42365;-3.69094;
+314;Arenal Hileras;2015;CENTRO SUR;40.42366;-3.69095;
+315;Pza Isabel II;2015;CENTRO SUR;40.42367;-3.69096;
+316;Pza Santo Domingo Parque;2015;CENTRO SUR;40.42368;-3.69097;
+401;Mayor 7 de julio;2016;PLAZA MAYOR;40.4004;-3.69081;
+402;Mayor Arco del Triunfo;2016;PLAZA MAYOR;40.40041;-3.69082;
+403;Felipe III Pza Mayor;2016;PLAZA MAYOR;40.40042;-3.69083;
+404;Sal Pza Mayor;2016;PLAZA MAYOR;40.40043;-3.69084;
+405;Zaragoza Pza Mayor;2016;PLAZA MAYOR;40.40044;-3.69085;
+406;Gerona Pza Mayor;2016;PLAZA MAYOR;40.40045;-3.69086;
+407;Gerona Pza Mayor;2016;PLAZA MAYOR;40.40046;-3.69087;
+408;Botoneras Pza Mayor;2016;PLAZA MAYOR;40.40047;-3.69088;
+409;Toledo Pza Mayor;2016;PLAZA MAYOR;40.40048;-3.69089;
+410;Arco de cuchilleros;2016;PLAZA MAYOR;40.40049;-3.6909;
+411;Ciudad Rodrigo Pza Mayor;2016;PLAZA MAYOR;40.4005;-3.69091;
+412;Ciudad Rodrigo Pza Mayor;2016;PLAZA MAYOR;40.40051;-3.69092;
+413;Esparteros Mayor;2016;PLAZA MAYOR;40.40052;-3.69093;
+414;Mayor 16;2016;PLAZA MAYOR;40.40053;-3.69094;
+415;Pza Sta Cruz Bolsa;2016;PLAZA MAYOR;40.40054;-3.69095;
+416;Cava de San Miguel Fte 4;2016;PLAZA MAYOR;40.40055;-3.69091;
+417;Mayor Milaneses;2016;PLAZA MAYOR;40.40056;-3.69092;
+501;Plaza Manuel Gomez Moreno;2015;AZCA;40.40057;-3.69093;
+502;Orense 6;2015;AZCA;40.40058;-3.69094;
+503;Orense 6-8;2015;AZCA;40.40059;-3.69095;
+504;Acceso Pasaje Inferior Orense  6-8;2015;AZCA;40.4006;-3.69096;
+505;Orense 10-12;2015;AZCA;40.40061;-3.69097;
+506;Orense 14-16 ;2015;AZCA;40.40062;-3.69098;
+507;Pasaje Inferior Orense 16-18;2015;AZCA;40.40063;-3.69099;
+508;Vial Central Orense 16-18 ;2015;AZCA;40.40064;-3.691;
+509;Vial Central Orense 16-18 ;2015;AZCA;40.40065;-3.69101;
+510;Vial Central Orense 20-22 ;2015;AZCA;40.40066;-3.69102;
+511;Vial Central Orense 20-22 ;2015;AZCA;40.40067;-3.69103;
+512;Acceso Pasaje Inferior Orense 22A;2015;AZCA;40.40068;-3.69104;
+513;Pasaje Inferior Orense 22A;2015;AZCA;40.40061;-3.69105;
+514;Acceso Pasaje Inferior Orense 22A;2015;AZCA;40.4007;-3.69106;
+515;Acceso Pasaje Inferior Plaza Carlos Trias Bertran;2015;AZCA;40.40071;-3.69107;
+516;Acceso Pasaje Inferior Orense 26;2015;AZCA;40.40069;-3.69108;
+517;Pasaje Inferior Orense  26 ;2015;AZCA;40.4007;-3.69109;
+518;Pasaje Inferior Orense  26 ;2015;AZCA;40.40071;-3.6911;
+519;Acceso Pasaje Inferior General Peron 32;2015;AZCA;40.40072;-3.69111;
+520;Acceso Pasaje Inferior General Peron 28-31;2015;AZCA;40.40073;-3.69112;
+601;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2020;MUSEO ARTE PUBLICO;40.40074;-3.69113;
+602;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2020;MUSEO ARTE PUBLICO;40.40075;-3.69114;
+603;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2020;MUSEO ARTE PUBLICO;40.40076;-3.69115;
+604;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2020;MUSEO ARTE PUBLICO;40.40077;-3.69116;
+605;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2020;MUSEO ARTE PUBLICO;40.40078;-3.69117;
+606;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2020;MUSEO ARTE PUBLICO;40.40079;-3.69118;
+607;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2016;MUSEO ARTE PUBLICO;40.4008;-3.69119;
+608;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2016;MUSEO ARTE PUBLICO;40.40081;-3.6912;
+609;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2016;MUSEO ARTE PUBLICO;40.40082;-3.69121;
+610;Bajo Paso Elevado de Enrique de la Mata Gorostizaga;2016;MUSEO ARTE PUBLICO;40.40078;-3.69117;
