@@ -1,109 +1,114 @@
 # VIASEGURA
 
-Herramienta de consola desarrollada en **C11** para consultar y analizar un inventario de cámaras de videovigilancia. La aplicación carga registros desde un fichero separado por `;`, permite calcular distancias geográficas, consultar cámaras por zona y localizar ubicaciones que contienen más de un dispositivo.
+Herramienta C11 para consultar un inventario de cámaras, validar su dataset y resolver búsquedas geográficas por radio. Funciona como CLI automatizable y conserva un menú interactivo para exploración manual.
 
-El proyecto fue desarrollado como trabajo académico y posteriormente reorganizado como un pequeño proyecto de programación en C, tratamiento de ficheros, estructuras de datos y cálculos geográficos.
+> El dataset incluido es académico. Antes de usar datos reales deben revisarse su licencia, finalidad, minimización y requisitos de privacidad aplicables.
+
+## Ejemplo rápido
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+
+./build/VIASEGURA \
+  --lat 40.4168 \
+  --lon -3.7038 \
+  --radius 3
+```
+
+La salida muestra las cámaras dentro del radio, ordenadas de menor a mayor distancia:
+
+```text
+KM         ID       ZONA               DIRECCION
+1.188      124      LAVAPIES           Calle Olmo 16
+1.189      123      LAVAPIES           Sta Isabel Buenavista
+...
+```
+
+Filtrar por zona y exportar el resultado:
+
+```bash
+./build/VIASEGURA \
+  --data data/videovigilancia.txt \
+  --lat 40.4168 --lon -3.7038 --radius 3 \
+  --zone LAVAPIES \
+  --csv camaras-cercanas.csv
+```
+
+Para abrir el menú original basta ejecutar `./build/VIASEGURA`. También se mantiene el formato compatible `./build/VIASEGURA ruta/datos.txt`.
 
 ## Funcionalidades
 
-- Carga de registros desde un fichero de datos externo.
-- Búsqueda de cámaras mediante su identificador.
-- Cálculo de la distancia entre dos cámaras mediante la fórmula de Haversine.
-- Listado de cámaras pertenecientes a una zona concreta.
-- Recuento de cámaras por zona.
-- Detección de ubicaciones compartidas por varias cámaras.
-- Generación del fichero `camaras.txt` con los dispositivos situados en ubicaciones repetidas.
-- Posibilidad de indicar un fichero de entrada diferente mediante un argumento de línea de comandos.
+- Carga dinámica: no existe un máximo artificial de 200 registros.
+- Validación estricta del número de campos, longitudes, números y rangos geográficos.
+- Distancia Haversine entre dos cámaras.
+- Búsqueda de cámaras a menos de `X` km de una coordenada.
+- Ordenación estable por distancia e ID.
+- Filtro exacto por zona.
+- Estadísticas y listado por zona en modo interactivo.
+- Detección de ubicaciones con varios dispositivos.
+- Exportación CSV con campos escapados correctamente.
+- Errores de fichero, escritura y cierre propagados al proceso llamante.
 
-## Tecnologías y conceptos
+## Formato de entrada
 
-- C11.
-- CMake 3.16+.
-- Entrada y salida estándar de C.
-- Lectura y escritura de ficheros.
-- Estructuras, arrays y cadenas.
-- Separación del código en módulos.
-- Validación de entradas.
-- Cálculos geográficos.
-
-## Decisiones de implementación
-
-- Lectura de entradas con `fgets`.
-- Conversión validada de opciones numéricas mediante `strtol`.
-- Copia limitada de cadenas mediante `snprintf`.
-- Control del número máximo de registros cargados.
-- Comprobación de errores al abrir, crear y cerrar ficheros.
-- Separación entre la lógica geográfica (`geo.c`) y la interfaz de consola (`main.c`).
-- Compilación separada de los módulos mediante CMake.
-- Separación entre los datos de entrada y los artefactos de compilación.
-
-## Estructura del repositorio
+La primera línea es la cabecera. Cada registro contiene exactamente siete campos separados por `;`:
 
 ```text
-.
-├── CMakeLists.txt
-├── data/
-│   └── videovigilancia.txt
-├── geo.c
-├── geo.h
-├── main.c
-└── leeme.txt
+ID Cartel;Ubicacion;Anyo;Zona;Latitud;Longitud;Direccion
+101;Gta Embajadores Miguel Servet;2009;LAVAPIES;40.42107;-3.72026;Gta Embajadores Miguel Servet
 ```
 
-- `main.c`: carga de datos, validación de entradas, menú y operaciones sobre el inventario.
-- `geo.c` y `geo.h`: cálculo de distancias geográficas.
-- `data/videovigilancia.txt`: conjunto de datos utilizado por defecto.
-- `leeme.txt`: autoría original del proyecto.
+Restricciones principales:
 
-## Compilación y ejecución
+- latitud entre `-90` y `90`;
+- longitud entre `-180` y `180`;
+- identificador no vacío;
+- campos dentro de los tamaños documentados en `camera.h`;
+- sin campos adicionales ni líneas truncadas.
 
-### Requisitos
+Ante un registro inválido la carga falla indicando fichero y línea. Esto evita producir resultados silenciosamente incorrectos.
 
-- Compilador compatible con C11.
-- CMake 3.16 o superior.
+## Arquitectura
 
-### Compilar
+```mermaid
+flowchart LR
+    A[Dataset ;] --> B[dataset.c: lectura y validación]
+    B --> C[CameraDataset dinámico]
+    C --> D[query.c: filtro, Haversine y ordenación]
+    D --> E[Salida de consola]
+    D --> F[csv.c: exportación segura]
+    G[main.c: CLI o menú] --> B
+    G --> D
+```
+
+| Módulo | Responsabilidad |
+| --- | --- |
+| `camera.h` | Modelo de datos y límites de los campos. |
+| `dataset.c` | Entrada, validación y almacenamiento dinámico. |
+| `geo.c` | Validación de coordenadas y fórmula Haversine. |
+| `query.c` | Búsqueda por radio, filtro y ordenación. |
+| `csv.c` | Serialización CSV y errores de salida. |
+| `main.c` | Argumentos CLI y experiencia interactiva. |
+
+## Pruebas y sanitizers
 
 ```bash
-cmake -S . -B build
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
 cmake --build build
+ctest --test-dir build --output-on-failure
 ```
 
-### Ejecutar con el fichero incluido
+La suite cubre distancia cero, un grado sobre el ecuador, antípodas, coordenadas límite, rechazo de coordenadas inválidas, carga del dataset, filtro de zona, radio y ordenación. También ejecuta la CLI real.
 
 ```bash
-./build/VIASEGURA
+cmake -S . -B build-asan -DENABLE_SANITIZERS=ON -DCMAKE_BUILD_TYPE=Debug
+cmake --build build-asan
+ctest --test-dir build-asan --output-on-failure
 ```
 
-CMake copia automáticamente la carpeta `data/` dentro del directorio de compilación.
-
-### Ejecutar con otro fichero
-
-```bash
-./build/VIASEGURA ruta/al/fichero.txt
-```
-
-El fichero debe incluir una cabecera y utilizar `;` como separador entre campos.
-
-## Menú de la aplicación
-
-```text
-1 - Determinar la distancia entre dos cámaras de videovigilancia
-2 - Mostrar estadísticas de cámaras por zonas
-3 - Generar un fichero con cámaras en ubicaciones repetidas
-0 - Terminar
-```
-
-## Detalles técnicos
-
-La distancia entre dos cámaras se calcula a partir de sus coordenadas mediante la fórmula de Haversine. En sistemas Unix, el ejecutable se enlaza con la biblioteca matemática `m`.
-
-Los registros se almacenan en estructuras de C y la aplicación mantiene un límite máximo de 200 entradas para evitar escrituras fuera del array reservado.
+GitHub Actions compila y prueba con GCC y Clang, además de ejecutar AddressSanitizer y UndefinedBehaviorSanitizer.
 
 ## Autoría
 
-Proyecto académico original desarrollado por:
-
-- David Arévalo Rey
-- Alberto Martín Gómez
-- Daniel Vela Quimbay
+Proyecto académico original desarrollado por David Arévalo Rey, Alberto Martín Gómez y Daniel Vela Quimbay. La reorganización posterior convierte la práctica en una aplicación CLI modular y comprobable.

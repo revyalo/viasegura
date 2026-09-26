@@ -15,7 +15,14 @@ double distanciaGeografica(double latA, double longA, double latB, double longB)
     double incLong = gradosARadianes(longB - longA);
     double a = pow(sin(incLat / 2.0), 2.0)
         + cos(latARad) * cos(latBRad) * pow(sin(incLong / 2.0), 2.0);
+    a = fmax(0.0, fmin(1.0, a));
     double c = 2.0 * atan2(sqrt(a), sqrt(1.0 - a));
 
     return RADIO_TIERRA_KM * c;
+}
+
+int geo_coordinates_valid(double latitude, double longitude) {
+    return isfinite(latitude) && isfinite(longitude) &&
+        latitude >= -90.0 && latitude <= 90.0 &&
+        longitude >= -180.0 && longitude <= 180.0;
 }
