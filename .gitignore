@@ -12,6 +12,7 @@ build.ninja
 
 # Generated output
 camaras.txt
+camaras.csv
 
 # IDE and OS files
 .idea/

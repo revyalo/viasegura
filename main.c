@@ -1,371 +1,334 @@
+#include "csv.h"
+#include "dataset.h"
+#include "geo.h"
+#include "query.h"
+
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "geo.h"
 
-#define LG 100
-#define MAX_REGISTROS 200
-#define SEPARADOR ";"
-#define FICHERO_DATOS "data/videovigilancia.txt"
-#define FICHERO_SALIDA "camaras.txt"
+#define DEFAULT_DATA_FILE "data/videovigilancia.txt"
+#define DEFAULT_REPEATED_FILE "camaras.csv"
 
 typedef struct {
-    char id[LG];
-    char anyo[LG];
-    char ubicacion[LG];
-    char zona[LG];
-    char lat[LG];
-    char lon[LG];
-    char direccion[LG];
-    double latitud;
-    double longitud;
-} tRegistro;
+    const char *data_path;
+    const char *zone;
+    const char *csv_path;
+    double latitude;
+    double longitude;
+    double radius;
+    int has_latitude;
+    int has_longitude;
+    int has_radius;
+    int show_help;
+} CliOptions;
 
-static const char *ZONAS[] = {
-    "LAVAPIES",
-    "BALLESTA-GRAN VIA",
-    "CENTRO SUR",
-    "PLAZA MAYOR",
-    "AZCA",
-    "MUSEO ARTE PUBLICO"
-};
-
-static int cargarDatos(tRegistro registros[], int maxRegistros, const char *ruta);
-static void opcionDistancia(const tRegistro registros[], int total);
-static void opcionZonas(const tRegistro registros[], int total);
-static void listarPorZona(const tRegistro registros[], int total);
-static void mostrarEstadisticas(const tRegistro registros[], int total);
-static void generarFicheroUbicaciones(const tRegistro registros[], int total);
-static int buscarPorId(const tRegistro registros[], int total, const char *id);
-static int ubicacionCompartida(const tRegistro registros[], int total, int indice);
-static void mostrarRegistro(const tRegistro *registro, FILE *salida);
-static void mostrarZonas(void);
-static int leerEntero(const char *mensaje, int *valor);
-static void leerLinea(const char *mensaje, char destino[], size_t longitud);
-static void copiarCampo(char destino[], size_t longitud, const char *origen);
-static void limpiarSaltoLinea(char texto[]);
-
-int main(int argc, char *argv[]) {
-    tRegistro datos[MAX_REGISTROS];
-    const char *rutaDatos = argc > 1 ? argv[1] : FICHERO_DATOS;
-    int total = cargarDatos(datos, MAX_REGISTROS, rutaDatos);
-    int opcion = -1;
-
-    if (total <= 0) {
-        printf("No se han podido cargar registros desde %s\n", rutaDatos);
-        return EXIT_FAILURE;
-    }
-
-    do {
-        printf("\n-------------------VIASEGURA-------------------\n");
-        printf("1 - Determinar la distancia entre dos camaras de videovigilancia.\n");
-        printf("2 - Mostrar estadisticas de camaras por zonas.\n");
-        printf("3 - Generar un fichero con camaras en ubicaciones repetidas.\n");
-        printf("0 - Terminar.\n");
-        printf("-----------------------------------------------\n");
-
-        if (!leerEntero("Opcion: ", &opcion)) {
-            break;
-        }
-
-        switch (opcion) {
-            case 0:
-                break;
-            case 1:
-                opcionDistancia(datos, total);
-                break;
-            case 2:
-                opcionZonas(datos, total);
-                break;
-            case 3:
-                generarFicheroUbicaciones(datos, total);
-                break;
-            default:
-                printf("Opcion no valida.\n");
-                break;
-        }
-    } while (opcion != 0);
-
-    return EXIT_SUCCESS;
-}
-
-static int cargarDatos(tRegistro registros[], int maxRegistros, const char *ruta) {
-    FILE *fichero = fopen(ruta, "r");
-    char linea[512];
-    int total = 0;
-    int numeroLinea = 0;
-
-    if (fichero == NULL) {
-        printf("Error al abrir el fichero de datos: %s\n", ruta);
-        return -1;
-    }
-
-    while (fgets(linea, sizeof(linea), fichero) != NULL) {
-        tRegistro registro = {0};
-        char *token;
-        int campo = 0;
-
-        numeroLinea++;
-        if (numeroLinea == 1) {
-            continue;
-        }
-
-        if (total >= maxRegistros) {
-            printf("Aviso: se alcanzo el limite de %d registros.\n", maxRegistros);
-            break;
-        }
-
-        token = strtok(linea, SEPARADOR);
-        while (token != NULL && campo < 7) {
-            limpiarSaltoLinea(token);
-
-            switch (campo) {
-                case 0:
-                    copiarCampo(registro.id, sizeof(registro.id), token);
-                    break;
-                case 1:
-                    copiarCampo(registro.ubicacion, sizeof(registro.ubicacion), token);
-                    break;
-                case 2:
-                    copiarCampo(registro.anyo, sizeof(registro.anyo), token);
-                    break;
-                case 3:
-                    copiarCampo(registro.zona, sizeof(registro.zona), token);
-                    break;
-                case 4:
-                    copiarCampo(registro.lat, sizeof(registro.lat), token);
-                    registro.latitud = strtod(registro.lat, NULL);
-                    break;
-                case 5:
-                    copiarCampo(registro.lon, sizeof(registro.lon), token);
-                    registro.longitud = strtod(registro.lon, NULL);
-                    break;
-                case 6:
-                    copiarCampo(registro.direccion, sizeof(registro.direccion), token);
-                    break;
-                default:
-                    break;
-            }
-
-            campo++;
-            token = strtok(NULL, SEPARADOR);
-        }
-
-        if (registro.id[0] != '\0') {
-            registros[total] = registro;
-            total++;
-        }
-    }
-
-    if (fclose(fichero) != 0) {
-        printf("Aviso: error al cerrar el fichero de datos.\n");
-    }
-
-    return total;
-}
-
-static void opcionDistancia(const tRegistro registros[], int total) {
-    char id1[LG];
-    char id2[LG];
-    int indice1;
-    int indice2;
-    double distancia;
-
-    printf("\nIntroduce dos ID para calcular la distancia geografica.\n");
-    leerLinea("ID 1: ", id1, sizeof(id1));
-    leerLinea("ID 2: ", id2, sizeof(id2));
-
-    indice1 = buscarPorId(registros, total, id1);
-    indice2 = buscarPorId(registros, total, id2);
-
-    if (indice1 == -1 || indice2 == -1) {
-        printf("No se ha encontrado uno de los ID introducidos.\n");
-        return;
-    }
-
-    distancia = distanciaGeografica(
-        registros[indice1].latitud,
-        registros[indice1].longitud,
-        registros[indice2].latitud,
-        registros[indice2].longitud
+static void print_usage(const char *program) {
+    printf(
+        "Uso:\n"
+        "  %s [fichero]                         Modo interactivo\n"
+        "  %s [--data fichero] --lat N --lon N --radius KM [--zone Z] [--csv salida]\n\n"
+        "Opciones:\n"
+        "  --data RUTA    Fichero separado por ';' (por defecto %s)\n"
+        "  --lat N        Latitud de origen, entre -90 y 90\n"
+        "  --lon N        Longitud de origen, entre -180 y 180\n"
+        "  --radius KM    Radio de busqueda no negativo\n"
+        "  --zone TEXTO   Filtro exacto de zona\n"
+        "  --csv RUTA     Exporta los resultados a CSV\n"
+        "  -h, --help     Muestra esta ayuda\n",
+        program,
+        program,
+        DEFAULT_DATA_FILE
     );
-
-    printf("Distancia entre %s y %s: %.2f km\n", id1, id2, distancia);
 }
 
-static void opcionZonas(const tRegistro registros[], int total) {
-    int eleccion = -1;
+static int parse_double(const char *text, double *value) {
+    char *end;
 
-    do {
-        printf("\n-------- Zonas --------\n");
-        printf("1 - Listar camaras de una zona\n");
-        printf("2 - Mostrar numero de camaras por zona\n");
-        printf("0 - Volver\n");
-
-        if (!leerEntero("Opcion: ", &eleccion)) {
-            return;
-        }
-
-        switch (eleccion) {
-            case 0:
-                break;
-            case 1:
-                listarPorZona(registros, total);
-                break;
-            case 2:
-                mostrarEstadisticas(registros, total);
-                break;
-            default:
-                printf("Opcion no valida.\n");
-                break;
-        }
-    } while (eleccion != 0);
-}
-
-static void listarPorZona(const tRegistro registros[], int total) {
-    char zona[LG];
-    int encontrados = 0;
-
-    mostrarZonas();
-    leerLinea("Zona: ", zona, sizeof(zona));
-
-    for (int i = 0; i < total; i++) {
-        if (strcmp(zona, registros[i].zona) == 0) {
-            mostrarRegistro(&registros[i], stdout);
-            encontrados++;
-        }
+    errno = 0;
+    *value = strtod(text, &end);
+    while (*end == ' ' || *end == '\t') {
+        end++;
     }
-
-    if (encontrados == 0) {
-        printf("No se han encontrado camaras para esa zona.\n");
-    }
+    return errno == 0 && end != text && *end == '\0';
 }
 
-static void mostrarEstadisticas(const tRegistro registros[], int total) {
-    size_t totalZonas = sizeof(ZONAS) / sizeof(ZONAS[0]);
+static int take_value(int argc, char *argv[], int *index, const char **value) {
+    if (*index + 1 >= argc) {
+        fprintf(stderr, "Falta el valor de %s\n", argv[*index]);
+        return 0;
+    }
+    *value = argv[++(*index)];
+    return 1;
+}
 
-    printf("\nNumero de camaras por zona:\n");
-    for (size_t i = 0; i < totalZonas; i++) {
-        int contador = 0;
+static int parse_options(int argc, char *argv[], CliOptions *options) {
+    int index;
 
-        for (int j = 0; j < total; j++) {
-            if (strcmp(ZONAS[i], registros[j].zona) == 0) {
-                contador++;
+    memset(options, 0, sizeof(*options));
+    options->data_path = DEFAULT_DATA_FILE;
+    for (index = 1; index < argc; index++) {
+        const char *value;
+        if (strcmp(argv[index], "-h") == 0 || strcmp(argv[index], "--help") == 0) {
+            options->show_help = 1;
+        } else if (strcmp(argv[index], "--data") == 0) {
+            if (!take_value(argc, argv, &index, &options->data_path)) {
+                return 0;
             }
+        } else if (strcmp(argv[index], "--lat") == 0) {
+            if (!take_value(argc, argv, &index, &value) || !parse_double(value, &options->latitude)) {
+                fprintf(stderr, "Latitud no valida\n");
+                return 0;
+            }
+            options->has_latitude = 1;
+        } else if (strcmp(argv[index], "--lon") == 0) {
+            if (!take_value(argc, argv, &index, &value) || !parse_double(value, &options->longitude)) {
+                fprintf(stderr, "Longitud no valida\n");
+                return 0;
+            }
+            options->has_longitude = 1;
+        } else if (strcmp(argv[index], "--radius") == 0) {
+            if (!take_value(argc, argv, &index, &value) || !parse_double(value, &options->radius)) {
+                fprintf(stderr, "Radio no valido\n");
+                return 0;
+            }
+            options->has_radius = 1;
+        } else if (strcmp(argv[index], "--zone") == 0) {
+            if (!take_value(argc, argv, &index, &options->zone)) {
+                return 0;
+            }
+        } else if (strcmp(argv[index], "--csv") == 0) {
+            if (!take_value(argc, argv, &index, &options->csv_path)) {
+                return 0;
+            }
+        } else if (argv[index][0] != '-' && argc == 2) {
+            options->data_path = argv[index];
+        } else {
+            fprintf(stderr, "Opcion no reconocida: %s\n", argv[index]);
+            return 0;
         }
-
-        printf("%-25s %d\n", ZONAS[i], contador);
     }
+    return 1;
 }
 
-static void generarFicheroUbicaciones(const tRegistro registros[], int total) {
-    FILE *fichero = fopen(FICHERO_SALIDA, "w");
-    int escritos = 0;
-
-    if (fichero == NULL) {
-        printf("Se ha producido un error al crear %s\n", FICHERO_SALIDA);
-        return;
-    }
-
-    for (int i = 0; i < total; i++) {
-        if (ubicacionCompartida(registros, total, i)) {
-            mostrarRegistro(&registros[i], fichero);
-            escritos++;
-        }
-    }
-
-    if (fclose(fichero) != 0) {
-        printf("Se ha producido un error al cerrar %s\n", FICHERO_SALIDA);
-        return;
-    }
-
-    printf("Se ha creado %s con %d camaras en ubicaciones repetidas.\n", FICHERO_SALIDA, escritos);
+static int has_query(const CliOptions *options) {
+    return options->has_latitude || options->has_longitude || options->has_radius ||
+        options->zone != NULL || options->csv_path != NULL;
 }
 
-static int buscarPorId(const tRegistro registros[], int total, const char *id) {
-    for (int i = 0; i < total; i++) {
-        if (strcmp(id, registros[i].id) == 0) {
-            return i;
+static int validate_query(const CliOptions *options) {
+    if (!options->has_latitude || !options->has_longitude || !options->has_radius) {
+        fprintf(stderr, "--lat, --lon y --radius deben indicarse juntos\n");
+        return 0;
+    }
+    if (!geo_coordinates_valid(options->latitude, options->longitude)) {
+        fprintf(stderr, "Coordenadas fuera de rango\n");
+        return 0;
+    }
+    if (options->radius < 0.0) {
+        fprintf(stderr, "El radio no puede ser negativo\n");
+        return 0;
+    }
+    return 1;
+}
+
+static int find_by_id(const CameraDataset *dataset, const char *id) {
+    size_t index;
+
+    for (index = 0; index < dataset->count; index++) {
+        if (strcmp(dataset->items[index].id, id) == 0) {
+            return (int)index;
         }
     }
-
     return -1;
 }
 
-static int ubicacionCompartida(const tRegistro registros[], int total, int indice) {
-    for (int i = 0; i < total; i++) {
-        if (i != indice && strcmp(registros[indice].ubicacion, registros[i].ubicacion) == 0) {
-            return 1;
-        }
-    }
+static void read_line(const char *prompt, char *destination, size_t size) {
+    int character;
 
-    return 0;
-}
-
-static void mostrarRegistro(const tRegistro *registro, FILE *salida) {
-    fprintf(
-        salida,
-        "ID: %s\tUbicacion: %s\tAnyo: %s\tZona: %s\tLatitud: %s\tLongitud: %s\tDireccion: %s\n",
-        registro->id,
-        registro->ubicacion,
-        registro->anyo,
-        registro->zona,
-        registro->lat,
-        registro->lon,
-        registro->direccion
-    );
-}
-
-static void mostrarZonas(void) {
-    size_t totalZonas = sizeof(ZONAS) / sizeof(ZONAS[0]);
-
-    printf("\nZonas disponibles:\n");
-    for (size_t i = 0; i < totalZonas; i++) {
-        printf("- %s\n", ZONAS[i]);
-    }
-}
-
-static int leerEntero(const char *mensaje, int *valor) {
-    char linea[32];
-
-    for (;;) {
-        char *fin;
-        long leido;
-
-        printf("%s", mensaje);
-        if (fgets(linea, sizeof(linea), stdin) == NULL) {
-            return 0;
-        }
-
-        leido = strtol(linea, &fin, 10);
-        while (*fin == ' ' || *fin == '\t') {
-            fin++;
-        }
-
-        if (fin != linea && (*fin == '\n' || *fin == '\0')) {
-            *valor = (int)leido;
-            return 1;
-        }
-
-        printf("Entrada no valida. Introduce un numero.\n");
-    }
-}
-
-static void leerLinea(const char *mensaje, char destino[], size_t longitud) {
-    printf("%s", mensaje);
-    if (fgets(destino, longitud, stdin) == NULL) {
-        destino[0] = '\0';
+    printf("%s", prompt);
+    if (fgets(destination, (int)size, stdin) == NULL) {
+        destination[0] = '\0';
         return;
     }
-
-    limpiarSaltoLinea(destino);
+    if (strchr(destination, '\n') == NULL && !feof(stdin)) {
+        while ((character = getchar()) != '\n' && character != EOF) {
+        }
+    }
+    destination[strcspn(destination, "\r\n")] = '\0';
 }
 
-static void copiarCampo(char destino[], size_t longitud, const char *origen) {
-    snprintf(destino, longitud, "%s", origen);
-    limpiarSaltoLinea(destino);
+static int read_menu_option(void) {
+    char input[32];
+    char *end;
+    long value;
+
+    read_line("Opcion: ", input, sizeof(input));
+    errno = 0;
+    value = strtol(input, &end, 10);
+    return errno == 0 && end != input && *end == '\0' ? (int)value : -1;
 }
 
-static void limpiarSaltoLinea(char texto[]) {
-    texto[strcspn(texto, "\r\n")] = '\0';
+static void print_camera(const Camera *camera) {
+    printf("%-8s %-22s %-18s %10.5f %11.5f  %s\n",
+        camera->id, camera->location, camera->zone,
+        camera->latitude, camera->longitude, camera->address);
+}
+
+static void interactive_distance(const CameraDataset *dataset) {
+    char first_id[CAMERA_ID_SIZE];
+    char second_id[CAMERA_ID_SIZE];
+    int first;
+    int second;
+
+    read_line("ID 1: ", first_id, sizeof(first_id));
+    read_line("ID 2: ", second_id, sizeof(second_id));
+    first = find_by_id(dataset, first_id);
+    second = find_by_id(dataset, second_id);
+    if (first < 0 || second < 0) {
+        puts("No se ha encontrado uno de los ID introducidos.");
+        return;
+    }
+    printf("Distancia entre %s y %s: %.3f km\n", first_id, second_id,
+        distanciaGeografica(
+            dataset->items[first].latitude,
+            dataset->items[first].longitude,
+            dataset->items[second].latitude,
+            dataset->items[second].longitude
+        ));
+}
+
+static void interactive_zone(const CameraDataset *dataset) {
+    char zone[CAMERA_ZONE_SIZE];
+    size_t index;
+    size_t found = 0;
+
+    read_line("Zona (texto exacto): ", zone, sizeof(zone));
+    for (index = 0; index < dataset->count; index++) {
+        if (strcmp(dataset->items[index].zone, zone) == 0) {
+            print_camera(&dataset->items[index]);
+            found++;
+        }
+    }
+    printf("%zu camara(s) encontradas.\n", found);
+}
+
+static void interactive_stats(const CameraDataset *dataset) {
+    size_t index;
+
+    for (index = 0; index < dataset->count; index++) {
+        size_t previous;
+        size_t count = 0;
+        for (previous = 0; previous < index; previous++) {
+            if (strcmp(dataset->items[previous].zone, dataset->items[index].zone) == 0) {
+                break;
+            }
+        }
+        if (previous != index) {
+            continue;
+        }
+        for (previous = index; previous < dataset->count; previous++) {
+            if (strcmp(dataset->items[previous].zone, dataset->items[index].zone) == 0) {
+                count++;
+            }
+        }
+        printf("%-25s %zu\n", dataset->items[index].zone, count);
+    }
+}
+
+static void interactive_repeated(const CameraDataset *dataset) {
+    char error[256];
+    size_t written = 0;
+
+    if (!csv_export_repeated_locations(DEFAULT_REPEATED_FILE, dataset, &written, error, sizeof(error))) {
+        fprintf(stderr, "%s\n", error);
+        return;
+    }
+    printf("Se ha creado %s con %zu camara(s).\n", DEFAULT_REPEATED_FILE, written);
+}
+
+static void run_interactive(const CameraDataset *dataset) {
+    int option;
+
+    do {
+        puts("\n------------------- VIASEGURA -------------------");
+        puts("1 - Distancia entre dos camaras");
+        puts("2 - Listar camaras por zona");
+        puts("3 - Estadisticas por zona");
+        puts("4 - Exportar ubicaciones repetidas a CSV");
+        puts("0 - Terminar");
+        option = read_menu_option();
+        switch (option) {
+            case 0: break;
+            case 1: interactive_distance(dataset); break;
+            case 2: interactive_zone(dataset); break;
+            case 3: interactive_stats(dataset); break;
+            case 4: interactive_repeated(dataset); break;
+            default: puts("Opcion no valida."); break;
+        }
+    } while (option != 0 && !feof(stdin));
+}
+
+static int run_query(const CameraDataset *dataset, const CliOptions *options) {
+    CameraDistance *results = NULL;
+    size_t count = 0;
+    size_t index;
+    char error[256];
+
+    if (!query_nearby(dataset, options->latitude, options->longitude, options->radius,
+        options->zone, &results, &count, error, sizeof(error))) {
+        fprintf(stderr, "%s\n", error);
+        return EXIT_FAILURE;
+    }
+    printf("%-10s %-8s %-18s %s\n", "KM", "ID", "ZONA", "DIRECCION");
+    for (index = 0; index < count; index++) {
+        printf("%-10.3f %-8s %-18s %s\n", results[index].distance_km,
+            results[index].camera->id, results[index].camera->zone,
+            results[index].camera->address);
+    }
+    printf("%zu camara(s) dentro de %.3f km.\n", count, options->radius);
+
+    if (options->csv_path != NULL &&
+        !csv_export_nearby(options->csv_path, results, count, error, sizeof(error))) {
+        fprintf(stderr, "%s\n", error);
+        free(results);
+        return EXIT_FAILURE;
+    }
+    if (options->csv_path != NULL) {
+        printf("Resultados exportados a %s\n", options->csv_path);
+    }
+    free(results);
+    return EXIT_SUCCESS;
+}
+
+int main(int argc, char *argv[]) {
+    CliOptions options;
+    CameraDataset dataset = {0};
+    char error[256];
+    int status = EXIT_SUCCESS;
+
+    if (!parse_options(argc, argv, &options)) {
+        print_usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+    if (options.show_help) {
+        print_usage(argv[0]);
+        return EXIT_SUCCESS;
+    }
+    if (has_query(&options) && !validate_query(&options)) {
+        return EXIT_FAILURE;
+    }
+    if (!dataset_load(options.data_path, &dataset, error, sizeof(error))) {
+        fprintf(stderr, "%s\n", error);
+        return EXIT_FAILURE;
+    }
+
+    if (has_query(&options)) {
+        status = run_query(&dataset, &options);
+    } else {
+        run_interactive(&dataset);
+    }
+    dataset_free(&dataset);
+    return status;
 }
